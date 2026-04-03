@@ -42,6 +42,8 @@ Copy `.env.example` to `.env` and fill in:
 | `BOT_ACCESS_PASSWORD` | no | Password for non-admin Telegram access |
 | `LOG_LEVEL` | no | `debug` / `info` / `warn` (default: `info`) |
 
+Without `TELEGRAM_BOT_TOKEN` + `TELEGRAM_ADMIN_ID`, the bot auto-publishes on schedule without human review.
+
 ---
 
 ## Start with Docker Compose (recommended)
@@ -88,17 +90,20 @@ bun run once
 
 # Or run Telegram bot only (no scheduler)
 bun run bot
+
+# Watch mode (auto-reload on file changes)
+bun dev
 ```
 
 ---
 
 ## Telegram commands
 
-Once running, open your Telegram bot and use:
-
 | Command | What it does |
 |---|---|
-| `/generate` | Generate a draft and send it for review |
+| `/generate` | Generate a draft (random topic + random hook + random mode) |
+| `/generate topical <angle>` | Generate a post about a specific angle, forces `topical_reaction` hook |
+| `/generate <custom text>` | Same as topical but picks hook randomly |
 | `/approve` | Publish the current draft to Threads |
 | `/reject` | Discard the current draft |
 | `/post_now` | Generate and publish immediately (no review) |
@@ -118,8 +123,45 @@ Once running, open your Telegram bot and use:
 5. Result logged to `data/post-log.json`
 
 **Manual flow:**
-- `/generate` → review → `/approve` or `/reject`
+- `/generate [angle]` → review → `/approve` or `/reject`
 - `/post_now` → publishes immediately without review
+
+---
+
+## Content generation
+
+Each post is assembled from two independent random picks:
+
+| Dimension | Options | Notes |
+|---|---|---|
+| **Hook intent** | 12 intents | Controls the opening angle and emotional direction |
+| **Post mode** | 4 modes | Controls post structure |
+
+### Hook intents (12)
+
+`contrarian_diagnosis`, `hidden_cost`, `uncomfortable_truth`, `pain_diagnosis`, `dry_humor`, `topical_reaction`, `myth_busting`, `false_growth_signal`, `operator_confession`, `wrong_problem`, `invisible_drain`, `scaling_paradox`
+
+### Post modes
+
+| Mode | Weight | Behaviour |
+|---|---|---|
+| `default` | 50% | Standard post, no forced structure |
+| `question` | 25% | Ends with one sharp, uncomfortable question |
+| `story` | 15% | Micro-story: situation → wrong assumption → consequence |
+| `open_loop` | 10% | Deliberately unresolved — raises tension, stops before the answer |
+
+Post mode is **always picked randomly** on each generation — there is no Telegram command to force a specific mode. To change the distribution, edit `POST_MODE_POLICY` in `src/config/constants.ts`:
+
+```typescript
+export const POST_MODE_POLICY: Record<PostMode, number> = {
+  default: 0.50,    // 50%: standard post
+  question: 0.25,   // 25%: uncomfortable question that triggers debate
+  story: 0.15,      // 15%: micro-story format
+  open_loop: 0.10,  // 10%: unresolved tension, no clean wrap-up
+};
+```
+
+Weights must sum to `1.0`. Set a mode to `0` to disable it entirely.
 
 ---
 
@@ -185,11 +227,12 @@ Set `TZ` in `.env` to control which timezone the schedule runs in.
 
 ---
 
-## Modes
+## Run modes
 
-| Start command | Behavior |
+| Command | Behavior |
 |---|---|
 | `bun start` | Scheduler + Telegram polling (normal mode) |
 | `bun run once` | Generate + publish once, then exit |
 | `bun run bot` | Telegram polling only, no scheduler |
+| `bun dev` | Watch mode — auto-reload on file changes |
 | `docker compose up` | Same as `bun start`, inside Docker |

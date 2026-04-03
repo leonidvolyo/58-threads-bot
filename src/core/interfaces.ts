@@ -8,6 +8,8 @@ export interface GeneratePostOptions {
   hookIntent?: string;
   /** Free-form custom angle, overrides topic (used in topical mode) */
   customAngle?: string;
+  /** Post mode override — if omitted, picked randomly by POST_MODE_POLICY */
+  postMode?: string;
 }
 
 /**

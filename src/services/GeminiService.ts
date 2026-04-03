@@ -8,6 +8,9 @@ import {
   HOOK_INTENTS,
   BANNED_PHRASES,
   QUALITY_FILTER,
+  type PostMode,
+  POST_MODE_INSTRUCTIONS,
+  pickPostMode,
 } from '../config/index.js';
 import { AIProviderError } from '../core/errors.js';
 import { logger } from '../utils/logger.js';
@@ -15,7 +18,7 @@ import { truncate } from '../utils/string.js';
 
 /**
  * Gemini-based AI post generation service.
- * Combines topic + hook intent, enforces banned phrases, and applies quality filter.
+ * Combines topic + hook intent + post mode, enforces banned phrases, and applies quality filter.
  */
 export class GeminiService implements IAIPostProvider {
   constructor(private readonly apiKey: string) {}
@@ -30,7 +33,7 @@ export class GeminiService implements IAIPostProvider {
   }
 
   /**
-   * Generates a post using topic + hook intent.
+   * Generates a post using topic + hook intent + post mode.
    * Retries on banned phrases or failed quality checks (up to maxRetries).
    *
    * @param options - Topic string (legacy) or GeneratePostOptions
@@ -42,13 +45,14 @@ export class GeminiService implements IAIPostProvider {
     // customAngle overrides topic (used in topical mode)
     const topic = opts.customAngle ?? opts.topic ?? (await this.getRandomTopic());
     const hookIntent = opts.hookIntent ?? this.getRandomHookIntent();
+    const postMode: PostMode = (opts.postMode as PostMode) ?? pickPostMode();
 
     let lastText = '';
 
     for (let attempt = 1; attempt <= AI_CONFIG.maxRetries; attempt++) {
       // Vary the hook intent on retries for more diverse attempts
       const currentHook = attempt === 1 ? hookIntent : this.getRandomHookIntent();
-      const text = await this.callGemini(topic, currentHook);
+      const text = await this.callGemini(topic, currentHook, postMode);
       lastText = text;
 
       const banned = this.findBannedPhrase(text);
@@ -63,25 +67,28 @@ export class GeminiService implements IAIPostProvider {
         continue;
       }
 
-      logger.debug({ attempt, hookIntent: currentHook, topic }, 'Post accepted');
+      logger.debug({ attempt, hookIntent: currentHook, postMode, topic }, 'Post accepted');
       return truncate(text, AI_CONFIG.threadCharLimit);
     }
 
     // Fallback: use last generated text regardless
-    logger.warn({ topic, hookIntent }, 'Using fallback post after exhausting retries');
-    return truncate(lastText || (await this.callGemini(topic, hookIntent)), AI_CONFIG.threadCharLimit);
+    logger.warn({ topic, hookIntent, postMode }, 'Using fallback post after exhausting retries');
+    return truncate(lastText || (await this.callGemini(topic, hookIntent, postMode)), AI_CONFIG.threadCharLimit);
   }
 
   // ── Private ──────────────────────────────────────────────────────────────
 
-  private async callGemini(topic: string, hookIntent: string): Promise<string> {
+  private async callGemini(topic: string, hookIntent: string, postMode: PostMode): Promise<string> {
     const genAI = new GoogleGenerativeAI(this.apiKey);
     const model = genAI.getGenerativeModel({ model: AI_CONFIG.model });
     const style = await this.getStyleContext();
 
+    const modeInstruction = POST_MODE_INSTRUCTIONS[postMode];
+
     const promptText = PROMPT
       .replace('{TOPIC}', topic)
-      .replace('{HOOK_INTENT}', hookIntent);
+      .replace('{HOOK_INTENT}', hookIntent)
+      .replace('{POST_MODE_INSTRUCTION}', modeInstruction);
 
     const fullPrompt = style
       ? `${promptText}\n\nAdditional voice context:\n${style}`
@@ -101,24 +108,47 @@ export class GeminiService implements IAIPostProvider {
 
   /**
    * Lightweight quality heuristics.
-   * Rejects posts that are too generic, too advisory, or lack concrete business context.
+   * Rejects posts that are too generic, too advisory, too polished, or lack concrete business context.
    */
   private checkQuality(text: string): { pass: boolean; reason?: string } {
     const lower = text.toLowerCase().trim();
     const firstSentence = lower.split(/[.!?\n]/)[0] ?? '';
+    const newlineCount = (text.match(/\n/g) ?? []).length;
 
+    // Too many line breaks → blog-style, not punchy
+    if (newlineCount > QUALITY_FILTER.maxNewlines) {
+      return { pass: false, reason: `too many newlines (${newlineCount})` };
+    }
+
+    // Generic openers
     for (const opener of QUALITY_FILTER.genericOpeners) {
       if (firstSentence.includes(opener)) {
         return { pass: false, reason: `generic opener: "${opener}"` };
       }
     }
 
+    // Broad advice / how-to patterns
     for (const phrase of QUALITY_FILTER.broadAdvicePhrases) {
       if (lower.includes(phrase)) {
         return { pass: false, reason: `broad advice: "${phrase}"` };
       }
     }
 
+    // Too polished / closed endings
+    for (const phrase of QUALITY_FILTER.tooPolished) {
+      if (lower.includes(phrase)) {
+        return { pass: false, reason: `too polished: "${phrase}"` };
+      }
+    }
+
+    // LinkedIn / performative voice patterns
+    for (const phrase of QUALITY_FILTER.linkedinPatterns) {
+      if (lower.includes(phrase)) {
+        return { pass: false, reason: `linkedin pattern: "${phrase}"` };
+      }
+    }
+
+    // Must contain at least one concrete business term
     const hasConcrete = QUALITY_FILTER.concreteTerms.some((t) => lower.includes(t));
     if (!hasConcrete) {
       return { pass: false, reason: 'no concrete business term found' };
