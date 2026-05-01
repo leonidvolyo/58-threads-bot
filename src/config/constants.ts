@@ -37,9 +37,11 @@ export const POST_MODE_INSTRUCTIONS: Record<PostMode, string> = {
 // ── Prompt ────────────────────────────────────────────────────────────────────
 
 export const PROMPT = `
-You write short Threads posts for the founder of 58 Systems — a company that fixes broken operations for small businesses.
+You write short Threads posts for a tech practitioner who builds automations and systems for small businesses, follows AI and the tech industry closely, and has strong opinions about how things actually work versus how they get talked about.
 
-Target reader: SMB owner or operator. Skeptical, busy, tired of generic advice.
+This is not a brand account. Posts can be: a reaction to something in tech or AI, an observation about how tools or teams actually work, a hot take on startup or SaaS culture, a dry joke, a mildly infuriating pattern from the industry, or a grounded perspective from working with real businesses. 58 Systems context (ops/automation for SMBs) shows up naturally in some posts — not all.
+
+Target reader: tech-aware operators, founders, builders — skeptical of hype, experienced enough to recognize patterns.
 
 USE THIS HOOK INTENT: {HOOK_INTENT}
 
@@ -56,6 +58,7 @@ operator_confession — the hard-to-say thing that only comes after seeing the s
 wrong_problem — the reader is solving the symptom, not the root cause. Make the root cause visible.
 invisible_drain — something nobody names, nobody budgets for, but everyone quietly pays for. Make the reader feel: "nobody said that out loud before."
 scaling_paradox — the system that worked fine at 10 clients is now the ceiling at 30. Specific. Recognizable.
+ragebait — the mildly infuriating true thing that most people think but won't say. Specific enough that people stop to either agree hard or argue out loud. Not mean, not unhinged — just the take everyone was already thinking.
 
 READ-TO-END MECHANICS:
 The first line must create enough tension, recognition, or curiosity that the reader feels pulled to finish.
@@ -76,10 +79,10 @@ Never use: "agree?", "thoughts?", "comment if you've experienced this", "tag som
 Format:
 — 1 to 4 sentences. No lists. No bullets. No headers.
 — First sentence: must create immediate tension, recognition, or curiosity. NOT "businesses often struggle with X" — something specific, named, and slightly uncomfortable.
-— Include at least one concrete business object: CRM, lead, spreadsheet, inbox, follow-up, invoice, handoff, onboarding, tool, report, workflow, pipeline, meeting, email, task, client, etc.
-— Length: 80–350 characters total.
+— Ground the post in something specific — a situation, a decision, a recurring moment, a human pattern, a tool friction, or a cost nobody names. Don't force a tool mention if the observation is stronger without one.
+— Length: 80–480 characters. Shorter is usually better — but reactions and commentary can use the space they need.
 — No links. One emoji MAX if it fits naturally — skip entirely if unsure.
-— Voice: direct, slightly annoyed, a little dry. Like someone who has seen this pattern one too many times and stopped being surprised.
+— Voice: direct, occasionally dry or sharp. Can be a quick reaction to something just read, a pattern observation, or a provocation. Never corporate, never thought-leader.
 — Slightly imperfect sentence structure is fine. Don't over-polish.
 
 Optional: one Threads hashtag as the very last line if clearly on-target (e.g. #SMBOps). One max. Most posts should not have one.
@@ -120,18 +123,22 @@ export const HOOK_INTENTS = [
   'wrong_problem',
   'invisible_drain',
   'scaling_paradox',
+  'ragebait',
 ] as const;
 
 export type HookIntent = (typeof HOOK_INTENTS)[number];
 
 // ── Topic Buckets ─────────────────────────────────────────────────────────────
+// Composition: ~33% ops/business (7 buckets), ~67% tech/culture/industry (14 buckets)
 
 export const TOPIC_BUCKETS: Record<string, string[]> = {
+
+  // ── Ops / business (~33%) ──────────────────────────────────────────────────
   'smb-chaos': [
     'The spreadsheet that "temporarily" became core infrastructure 3 years ago',
     'Running a business on 6 tools that don\'t talk to each other',
-    'What Monday morning looks like when nothing is automated',
     'When the entire operation runs in someone\'s head, not a system',
+    'What Monday morning looks like when nothing is automated',
   ],
   'losing-leads': [
     'Leads that fill a form and wait 48 hours to hear back',
@@ -139,65 +146,17 @@ export const TOPIC_BUCKETS: Record<string, string[]> = {
     'What happens to leads that come in on Friday evening',
     'Losing a deal because no one sent a second email',
   ],
-  'tool-overload': [
-    'Paying for 12 SaaS tools and actively using 4',
-    'Copy-pasting data between systems every single morning',
-    'When CRM, inbox, and project tool all have a different version of the truth',
-    'Paying for integration that still doesn\'t actually work',
-  ],
-  'manual-frustration': [
-    'The task done manually 300 times that still hasn\'t been automated',
-    'Your most expensive person spending 2 hours a day on data entry',
-    'Sending invoices manually when all the data is already in the system',
-    'Building the same report from scratch every single week',
-  ],
-  'ai-hype-reality': [
-    '"We\'re using AI now" meaning they got a ChatGPT account',
-    'The gap between AI demos and what actually works in a 20-person business',
-    'Why most AI advice is written for 500-person companies, not 15-person ones',
-    'AI tools that promised everything — you still do it manually',
-  ],
   'founder-pain': [
     'Can\'t take a week off because the business stops without you',
     'Being the only person who knows how the whole thing works',
     'The moment you realize you built yourself a job, not a business',
-    'Explaining how to do something takes longer than just doing it yourself',
-  ],
-  'operational-bottleneck': [
-    'One person your entire operation quietly depends on',
-    'Onboarding a new hire takes a month because nothing is documented',
-    'Decisions going through you that really shouldn\'t need to',
-    'Every process lives in someone\'s head and disappears when they leave',
+    'Every handoff in the company quietly routes through the founder',
   ],
   'scaling-problems': [
     'What worked at 10 clients breaks completely at 30',
     'Revenue doubles. Chaos doubles with it.',
     'Growth that creates more firefighting, not less',
     'The systems that made sense when you started are strangling you now',
-  ],
-  'observations': [
-    'What actually separates operationally clean businesses from chaotic ones',
-    'The one automation that typically pays for itself in a few days',
-    'Pattern I keep seeing in businesses that can\'t grow past a certain point',
-    'What I\'d fix first if I walked into your business tomorrow',
-  ],
-  'light-humor': [
-    'The Excel file that IS the business',
-    'A meeting to discuss why there are too many meetings',
-    'The email thread that replaced your entire project management tool',
-    'Process documentation: a blank Google Doc created in 2022',
-  ],
-  'grab-attention': [
-    'The real reason some small businesses stay stuck at the same size for years',
-    'Why hiring more people sometimes makes operations slower',
-    'The most expensive thing in a small business usually isn\'t payroll',
-    'An uncomfortable pattern in businesses that keep losing time and clients',
-  ],
-  'ai-news-opinion': [
-    'What the latest AI tool announcement actually means for a real small business',
-    'Opinion: why most automation advice for SMBs misses the point entirely',
-    'The honest gap between what AI can do and what most businesses actually need',
-    'What\'s genuinely useful in the new wave of no-code tools vs. what\'s hype',
   ],
   'things-owners-wont-admit': [
     'The process you\'re proud of that is actually just organized chaos',
@@ -211,55 +170,19 @@ export const TOPIC_BUCKETS: Record<string, string[]> = {
     '"We\'re too small to need automation right now"',
     '"We tried that, it didn\'t work" after a 2-week half-implementation',
   ],
-  'fake-growth-signals': [
-    'More clients without fixing the underlying ops is just faster chaos',
-    'A full pipeline that the team can\'t service properly',
-    'Headcount growing. Margin shrinking. Everyone celebrating.',
-    'Busier than ever, but the profit hasn\'t moved in 18 months',
-  ],
   'hiring-wont-fix-it': [
     'Hiring someone to manage the problem instead of fixing the system',
     'The coordinator role that exists because the tools don\'t talk',
     '"We need a person for that" — for something that should run automatically',
     'Adding headcount to a broken process just means more people doing it wrong',
   ],
-  'invisible-operational-debt': [
-    'Every manual step that nobody talks about but everyone works around',
-    'The technical debt equivalent in operations: patches on patches',
-    'The unwritten rules that hold the entire operation together',
-    'Operational debt that doesn\'t show on any balance sheet',
-  ],
-  'what-breaks-at-volume': [
-    'The handoff that worked fine with 10 clients, fails silently at 40',
-    'The thing that scales the worst: manual follow-up',
-    'When the bottleneck isn\'t a person but an undocumented step nobody owns',
-    'What breaks first isn\'t usually what you planned for',
-  ],
-  'ai-changes-nothing': [
-    'Buying AI tools for a process that\'s broken at the logic level',
-    'AI won\'t fix your CRM if nobody updates it',
-    'Automating a broken workflow just breaks it faster',
-    'The AI that was supposed to save 5 hours now needs 3 hours to babysit',
-  ],
-  'bottleneck-nobody-budgets': [
-    'The cost of the 45-minute manual handoff nobody tracks',
-    'Time spent looking for information that should be in one place',
-    'The "5-minute task" someone does 40 times per day',
-    'Nobody budgets for the hour a week lost to copy-pasting between systems',
-  ],
 
-  // ── High-tension additions ─────────────────────────────────────────────────
-  'founder-as-middleware': [
-    'The founder who is still the connection between every part of the business',
-    'Every handoff in the company quietly routes through you',
-    'You\'re not a bottleneck. You\'re a system that was never built.',
-    'The business that runs fine as long as the founder never goes on vacation',
-  ],
-  'comms-vs-systems': [
-    'When a team calls something a "communication problem" and it\'s actually a systems failure',
-    'The Slack thread that replaced the process nobody ever documented',
-    'Miscommunication that isn\'t about people at all — it\'s about information not having a home',
-    'Every "we need to communicate better" that was really "we need a system"',
+  // ── AI / tech (with and without ops lens) ─────────────────────────────────
+  'ai-hype-reality': [
+    '"We\'re using AI now" meaning they got a ChatGPT account',
+    'The gap between AI demos and what actually works in a 20-person business',
+    'Why most AI advice is written for 500-person companies, not 15-person ones',
+    'AI tools that promised everything — you still do it manually',
   ],
   'ai-theater': [
     'Announcing AI adoption while still copy-pasting data between tools every morning',
@@ -267,11 +190,79 @@ export const TOPIC_BUCKETS: Record<string, string[]> = {
     'The AI transformation that didn\'t touch the broken step it was supposed to fix',
     'Buying AI tools for a process that isn\'t even documented yet',
   ],
-  'revenue-heavier-not-lighter': [
-    'The business that earns more but somehow feels harder to run every quarter',
-    'Why operations get more expensive per client as the business grows, not cheaper',
-    'Revenue went up. Margin went flat. Nobody can explain why.',
-    'The scaling moment where more volume means more chaos, not more clarity',
+  'ai-news-opinion': [
+    'What the latest AI model release actually means for a real 15-person business',
+    'The honest gap between what AI can do and what most businesses actually need',
+    'Why AI demos always work on the clean version of the problem',
+    'What\'s genuinely useful in the new wave of no-code AI tools vs. what\'s hype',
+  ],
+  'ai-future-takes': [
+    'The AI predictions from 2023 that were supposed to come true by now',
+    'Every year is the year AI replaces software engineers, according to someone on LinkedIn',
+    'The confident AI prediction from someone who has never integrated an API in production',
+    '"AGI within 2 years" — the goalpost keeps moving, the confidence never does',
+  ],
+  'tech-ai-reactions': [
+    'What actually changes for a small business after a major AI model release',
+    'Every AI announcement sounds like it will replace something. Most don\'t.',
+    '"Agents will handle everything" from people who\'ve never tried to get two SaaS tools to sync',
+    'The gap between what AI can demo and what it can do in production without babysitting',
+  ],
+
+  // ── Tech / industry / culture ──────────────────────────────────────────────
+  'industry-observations': [
+    'Why every SaaS product eventually adds AI features nobody asked for',
+    'How no-code tools are marketed vs. how they actually get used six months in',
+    'The startup that raised $20M and still can\'t explain what problem it solves',
+    '"Move fast and break things" — the things are still broken',
+  ],
+  'tech-culture-takes': [
+    'The engineer who spent 3 weeks automating a task that took 10 minutes',
+    'Every productivity app now has a feature to manage all your other productivity apps',
+    'The Slack workspace with more channels than employees',
+    'Why "it works on my machine" is still somehow a valid response in 2025',
+  ],
+  'light-humor': [
+    'The Excel file that IS the business',
+    'A meeting to discuss why there are too many meetings',
+    'The email thread that replaced your entire project management tool',
+    'Process documentation: a blank Google Doc created in 2022',
+  ],
+  'work-culture': [
+    'Remote work promised async. Everyone just moved the meetings to Zoom.',
+    'The calendar with 6 hours of meetings and 2 hours to do the actual work',
+    '"Flexible hours" meaning available at all hours, just in a friendly way',
+    'The all-hands where leadership asks for honest feedback and nobody gives honest feedback',
+  ],
+  'product-culture': [
+    'The roadmap that exists to give the impression of having a strategy',
+    'Adding an AI feature before fixing the bug that\'s been open for 8 months',
+    'The feature nobody asked for that took 3 sprints to ship',
+    '"We\'ll prioritize that next quarter" — said every quarter for two years',
+  ],
+  'developer-observations': [
+    '"We\'ll refactor it properly later" — the lie every codebase is built on',
+    'The documentation that describes what the code was supposed to do',
+    'Estimating how long something will take before understanding what it is',
+    'The technical debt conversation that never actually makes it onto the roadmap',
+  ],
+  'vc-startup-culture': [
+    'Raising a Series B to figure out the business model that should have existed at seed',
+    '"We\'re pre-revenue" as a fundraising narrative, not a problem to fix',
+    'The startup with a VP of everything and 12 employees total',
+    'Disrupting an industry that wasn\'t asking to be disrupted',
+  ],
+  'online-tech-discourse': [
+    'The LinkedIn post about "lessons learned" published 4 hours after the thing happened',
+    'Every tech layoff announcement followed by a thread about personal growth and resilience',
+    'The "hot take" that is just the consensus opinion said with more confidence',
+    'How every new programming language gets announced as the one that finally fixes everything',
+  ],
+  'team-dynamics': [
+    'The person who holds all institutional knowledge and doesn\'t realize it',
+    'Meetings where everyone agrees and nothing actually changes afterward',
+    'When everyone is busy but nothing important moves',
+    'The team member doing three jobs because one process was never designed',
   ],
 };
 
@@ -354,9 +345,6 @@ export const QUALITY_FILTER = {
     "here's how to",
     'here is how to',
     'the answer is to',
-    'build trust',
-    'create value',
-    'add value',
     'focus on what matters',
     "it's important to",
     'it is important to',
@@ -393,20 +381,6 @@ export const QUALITY_FILTER = {
     'real talk:',
     'hard truth:',
     'psa:',
-  ],
-  // Post must contain at least one of these — keeps it grounded in real ops
-  concreteTerms: [
-    'crm', 'lead', 'leads', 'spreadsheet', 'inbox', 'handoff', 'follow-up',
-    'follow up', 'invoice', 'onboarding', 'workflow', 'workflows', 'email',
-    'tool', 'tools', 'form', 'automation', 'automations', 'process', 'processes',
-    'client', 'clients', 'customer', 'customers', 'hire', 'hired', 'hiring',
-    'team', 'staff', 'employee', 'employees', 'manual', 'data entry', 'report',
-    'reports', 'dashboard', 'meeting', 'meetings', 'reply', 'pipeline', 'task',
-    'tasks', 'system', 'systems', 'software', 'integration', 'integrations',
-    'notification', 'revenue', 'growth', 'scaling', 'scale', 'budget', 'cost',
-    'expense', 'payroll', 'subscription', 'quota', 'deadline', 'headcount',
-    'operation', 'operations', 'ops', 'sales', 'support', 'coordinator',
-    'sales rep', 'account', 'contract', 'proposal', 'founder', 'middleware',
   ],
   // Reject if too many newlines (blog-post format)
   maxNewlines: 4,

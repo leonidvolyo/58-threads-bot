@@ -148,12 +148,6 @@ export class GeminiService implements IAIPostProvider {
       }
     }
 
-    // Must contain at least one concrete business term
-    const hasConcrete = QUALITY_FILTER.concreteTerms.some((t) => lower.includes(t));
-    if (!hasConcrete) {
-      return { pass: false, reason: 'no concrete business term found' };
-    }
-
     return { pass: true };
   }
 

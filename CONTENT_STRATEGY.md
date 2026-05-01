@@ -98,34 +98,43 @@ This is the foot in the door. Real value upfront. Converts to paid work when the
 
 ## Topic Buckets
 
-24 buckets covering SMB operations pain. Each bucket has 4 specific topic strings used as generation seeds.
+21 buckets. ~33% ops/business, ~67% tech/AI/culture/industry. Each bucket has 4 specific topic strings used as generation seeds.
+
+### Ops / business (~33%)
 
 | Bucket | Focus |
 |---|---|
 | `smb-chaos` | Spreadsheets as infrastructure, tool fragmentation, nothing automated |
 | `losing-leads` | Follow-up failures, leads going cold, Friday-evening leads |
-| `tool-overload` | Paying for unused tools, CRM/inbox/project drift, broken integrations |
-| `manual-frustration` | Repetitive tasks never automated, expensive people doing data entry |
-| `ai-hype-reality` | ChatGPT ≠ AI strategy, advice written for 500-person companies |
-| `founder-pain` | Can't take vacation, only person who knows how it works |
-| `operational-bottleneck` | Single point of failure, undocumented onboarding, everything in someone's head |
+| `founder-pain` | Can't take vacation, only person who knows how it works, founder as middleware |
 | `scaling-problems` | Works at 10 clients, breaks at 30; chaos doubles with revenue |
-| `observations` | Patterns separating clean ops from chaotic ones; what to fix first |
-| `light-humor` | The Excel file that IS the business; meetings about meetings |
-| `grab-attention` | Why some businesses stay stuck; hiring making things slower |
-| `ai-news-opinion` | What AI announcements actually mean for real small businesses |
 | `things-owners-wont-admit` | Known bottlenecks not fixed, workarounds that became workflows |
 | `expensive-lies` | "We'll fix it once we hire someone"; "we're too small for automation" |
-| `fake-growth-signals` | More clients + broken ops = faster chaos; margin flat while celebrating |
 | `hiring-wont-fix-it` | Coordinator role that exists because tools don't talk; headcount on broken process |
-| `invisible-operational-debt` | Manual steps nobody talks about; patches on patches |
-| `what-breaks-at-volume` | Handoff that fails at 40 clients; bottlenecks nobody owns |
-| `ai-changes-nothing` | AI on a broken process breaks it faster; CRM nobody updates |
-| `bottleneck-nobody-budgets` | 45-min manual handoff nobody tracks; "5-minute task" done 40x per day |
-| `founder-as-middleware` | Founder still the connection between every part; every handoff routes through you |
-| `comms-vs-systems` | "Communication problem" that's actually systems failure; Slack replacing process |
+
+### AI / tech (with and without ops lens) (~24%)
+
+| Bucket | Focus |
+|---|---|
+| `ai-hype-reality` | ChatGPT ≠ AI strategy, advice written for 500-person companies |
 | `ai-theater` | Announcing AI adoption while still copy-pasting every morning |
-| `revenue-heavier-not-lighter` | More revenue, harder to run; ops more expensive per client as you scale |
+| `ai-news-opinion` | What AI announcements actually mean for real small businesses |
+| `ai-future-takes` | Skeptical takes on AI predictions, AGI timelines, "replaces engineers" discourse |
+| `tech-ai-reactions` | Grounded reactions to major AI/tech releases — demo vs. production reality |
+
+### Tech / industry / culture (~43%)
+
+| Bucket | Focus |
+|---|---|
+| `industry-observations` | SaaS, startup, no-code culture — raised rounds, feature bloat, broken promises |
+| `tech-culture-takes` | Engineering culture — automation for its own sake, "works on my machine" |
+| `light-humor` | Dry tech/ops humor — Excel as the business, meetings about meetings |
+| `work-culture` | How modern work actually functions vs. the promise — async, flexible hours, all-hands |
+| `product-culture` | Product teams, roadmaps, sprints, features nobody asked for |
+| `developer-observations` | Code, tech debt, estimation, documentation reality |
+| `vc-startup-culture` | Fundraising culture, pre-revenue strategies, disruption for its own sake |
+| `online-tech-discourse` | LinkedIn lessons learned, tech layoff threads, hot takes, new language announcements |
+| `team-dynamics` | Knowledge hoarding, meetings that change nothing, everyone busy but nothing moves |
 
 To add or change topics, edit `TOPIC_BUCKETS` in `src/config/constants.ts`.
 
@@ -149,6 +158,7 @@ Controls the opening angle and emotional direction of each post.
 | `wrong_problem` | The reader is solving the symptom, not the root cause. Makes the root cause visible |
 | `invisible_drain` | Something nobody names, nobody budgets for, but everyone quietly pays for |
 | `scaling_paradox` | The system that worked fine at 10 clients is now the ceiling at 30 |
+| `ragebait` | The mildly infuriating true thing that most people think but won't say — specific enough to provoke agreement or argument |
 
 ---
 
@@ -190,7 +200,6 @@ Posts are rejected and regenerated if:
 - **Post body** contains broad advice/instructional patterns — "you should", "make sure to", "the best way to", "you need to", etc. (18 patterns)
 - **Post body** contains too-polished, clean-resolution phrases — "the lesson here", "the good news is", "simple fix", "the bottom line", etc. (12 patterns)
 - **Post body** contains LinkedIn performance voice — "excited to share", "hot take:", "real talk:", "hard truth:", etc. (10 patterns)
-- **Post has no concrete business term** — must include at least one of ~60 terms: crm, lead, workflow, handoff, invoice, onboarding, spreadsheet, tool, process, founder, middleware, etc.
 - **More than 4 newlines** — too blog-post-like
 
 ---
